@@ -1,0 +1,49 @@
+{
+  "name": "semantic-api-gateway",
+  "version": "1.0.0",
+  "description": "Semantic API Gateway & Router — intent-based routing via vector similarity",
+  "main": "dist/server/gateway.js",
+  "types": "dist/server/gateway.d.ts",
+  "engines": { "node": ">=20.0.0" },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/server/gateway.ts",
+    "start": "node dist/server/gateway.js",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:ci": "vitest run --coverage",
+    "benchmark": "tsx src/benchmarks/router-bench.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/formbody": "^8.0.1",
+    "@fastify/helmet": "^12.0.1",
+    "@fastify/rate-limit": "^10.2.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.0",
+    "hnswlib-node": "^3.0.0",
+    "http-proxy": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "lru-cache": "^11.0.2",
+    "openai": "^4.77.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "prom-client": "^15.1.3",
+    "uuid": "^10.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/http-proxy": "^1.17.15",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.12.0",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "eslint": "^9.18.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
