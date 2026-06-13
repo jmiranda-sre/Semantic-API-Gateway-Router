@@ -22,7 +22,7 @@ graph TB
     subgraph RouterEngine
         Router --> HNSW["HNSW Index"]
         Router --> Brute["Brute-Force Fallback"]
-        Router --> Threshold{"Confidence >= 0.85?"}
+        Router --> Threshold{Confidence}
         Threshold -->|Yes| Proxy["Proxy Handler"]
         Threshold -->|Close| Disambiguate["300 Multiple Choices"]
         Threshold -->|No| Reject["404 No Match"]

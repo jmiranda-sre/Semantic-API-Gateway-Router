@@ -23,9 +23,9 @@ graph LR
     A["Client: create a user"] --> B["Gateway"]
     B --> C["Embed Intent"]
     C --> D["HNSW Vector Search"]
-    D --> E{"Confidence >= 0.85?"}
+    D --> E{Confidence}
     E -->|Yes| F["Proxy to user-service"]
-    E -->|Close less than 5pct| G["300 Multiple Choices"]
+    E -->|Close| G["300 Multiple Choices"]
     E -->|No| H["404 No Match"]
 ```
 
