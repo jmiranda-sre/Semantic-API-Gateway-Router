@@ -20,7 +20,7 @@ This gateway replaces path-based routing with **intent-based semantic routing**.
 
 ```mermaid
 graph LR
-    A[Client: "create a user"] --> B[Gateway]
+    A[Client: 'create a user'] --> B[Gateway]
     B --> C[Embed Intent]
     C --> D[HNSW Vector Search]
     D --> E{Confidence ≥ 0.85?}
