@@ -20,13 +20,13 @@ This gateway replaces path-based routing with **intent-based semantic routing**.
 
 ```mermaid
 graph LR
-    A[Client: 'create a user'] --> B[Gateway]
-    B --> C[Embed Intent]
-    C --> D[HNSW Vector Search]
-    D --> E{Confidence ≥ 0.85?}
-    E -->|Yes| F[Proxy → user-service]
-    E -->|Close < 5%| G[300 Multiple Choices]
-    E -->|No| H[404 No Match]
+    A["Client: create a user"] --> B["Gateway"]
+    B --> C["Embed Intent"]
+    C --> D["HNSW Vector Search"]
+    D --> E{"Confidence >= 0.85?"}
+    E -->|Yes| F["Proxy to user-service"]
+    E -->|Close less than 5pct| G["300 Multiple Choices"]
+    E -->|No| H["404 No Match"]
 ```
 
 1. **Client sends intent** — JSON with a natural language description of what they need
@@ -39,40 +39,40 @@ graph LR
 
 ```mermaid
 graph TB
-    Client[Client Request] --> Gateway[Fastify Gateway]
-    Gateway --> Auth[JWT Auth Middleware]
-    Auth --> Embedding[Embedding Service]
-    
+    Client["Client Request"] --> Gateway["Fastify Gateway"]
+    Gateway --> Auth["JWT Auth Middleware"]
+    Auth --> Embedding["Embedding Service"]
+
     subgraph EmbeddingEngine
-        Embedding --> Cache[LRU Cache]
-        Cache --> |Miss| OpenAI[OpenAI API]
-        OpenAI --> |Fallback| Local[Local Fallback]
+        Embedding --> Cache["LRU Cache"]
+        Cache -->|Miss| OpenAI["OpenAI API"]
+        OpenAI -->|Fallback| Local["Local Fallback"]
     end
-    
-    Embedding --> Router[Semantic Router]
-    
+
+    Embedding --> Router["Semantic Router"]
+
     subgraph RouterEngine
-        Router --> HNSW[HNSW Index]
-        Router --> Brute[Brute-Force Fallback]
-        Router --> Threshold{Confidence ≥ 0.85?}
-        Threshold --> |Yes| Proxy[Proxy Handler]
-        Threshold --> |Close < 5%| Disambiguate[300 Multiple Choices]
-        Threshold --> |No| Reject[404 No Match]
+        Router --> HNSW["HNSW Index"]
+        Router --> Brute["Brute-Force Fallback"]
+        Router --> Threshold{"Confidence >= 0.85?"}
+        Threshold -->|Yes| Proxy["Proxy Handler"]
+        Threshold -->|Close| Disambiguate["300 Multiple Choices"]
+        Threshold -->|No| Reject["404 No Match"]
     end
-    
-    Proxy --> Service1[User Service]
-    Proxy --> Service2[Payment Service]
-    Proxy --> Service3[Order Service]
-    
+
+    Proxy --> Service1["User Service"]
+    Proxy --> Service2["Payment Service"]
+    Proxy --> Service3["Order Service"]
+
     subgraph Admin
-        AdminAPI[Admin API] --> Catalog[Catalog Manager]
-        Catalog --> |Hot-Reload| HNSW
+        AdminAPI["Admin API"] --> Catalog["Catalog Manager"]
+        Catalog -->|Hot-Reload| HNSW
     end
-    
+
     subgraph Observability
-        Gateway --> Logger[Structured JSON Logs]
-        Router --> Metrics[Prometheus Metrics]
-        Gateway --> Health[/health Endpoint]
+        Gateway --> Logger["Structured JSON Logs"]
+        Router --> Metrics["Prometheus Metrics"]
+        Gateway --> Health["Health Endpoint"]
     end
 ```
 

@@ -6,41 +6,41 @@
 
 ```mermaid
 graph TB
-    Client[Client Request] --> Gateway[Fastify Gateway]
-    Gateway --> Auth[JWT Auth Middleware]
-    Auth --> |Verified| Parser[Intent Parser]
-    Parser --> Embedding[Embedding Service]
-    
+    Client["Client Request"] --> Gateway["Fastify Gateway"]
+    Gateway --> Auth["JWT Auth Middleware"]
+    Auth -->|Verified| Parser["Intent Parser"]
+    Parser --> Embedding["Embedding Service"]
+
     subgraph EmbeddingEngine
-        Embedding --> Cache[LRU Cache]
-        Cache --> |Miss| Provider[OpenAI / Local]
-        Provider --> |Fallback| Fallback[Local Fallback]
+        Embedding --> Cache["LRU Cache"]
+        Cache -->|Miss| Provider["OpenAI / Local"]
+        Provider -->|Fallback| Fallback["Local Fallback"]
     end
-    
-    Embedding --> Router[Semantic Router]
-    
+
+    Embedding --> Router["Semantic Router"]
+
     subgraph RouterEngine
-        Router --> HNSW[HNSW Index]
-        Router --> Brute[Brute-Force Fallback]
-        Router --> Threshold{Confidence ≥ 0.85?}
-        Threshold --> |Yes| Proxy[Proxy Handler]
-        Threshold --> |Close < 5%| Disambiguate[300 Multiple Choices]
-        Threshold --> |No| Reject[404 No Match]
+        Router --> HNSW["HNSW Index"]
+        Router --> Brute["Brute-Force Fallback"]
+        Router --> Threshold{"Confidence >= 0.85?"}
+        Threshold -->|Yes| Proxy["Proxy Handler"]
+        Threshold -->|Close| Disambiguate["300 Multiple Choices"]
+        Threshold -->|No| Reject["404 No Match"]
     end
-    
-    Proxy --> Service1[User Service]
-    Proxy --> Service2[Payment Service]
-    Proxy --> Service3[Order Service]
-    
+
+    Proxy --> Service1["User Service"]
+    Proxy --> Service2["Payment Service"]
+    Proxy --> Service3["Order Service"]
+
     subgraph Admin
-        AdminAPI[Admin API] --> Catalog[Catalog Manager]
-        Catalog --> |Hot-Reload| HNSW
+        AdminAPI["Admin API"] --> Catalog["Catalog Manager"]
+        Catalog -->|Hot-Reload| HNSW
     end
-    
+
     subgraph Observability
-        Gateway --> Logger[Structured Logs]
-        Router --> Metrics[Prometheus Metrics]
-        Gateway --> Health[Health Endpoint]
+        Gateway --> Logger["Structured Logs"]
+        Router --> Metrics["Prometheus Metrics"]
+        Gateway --> Health["Health Endpoint"]
     end
 ```
 
@@ -56,16 +56,16 @@ sequenceDiagram
     participant P as Proxy Handler
     participant S as Upstream Service
 
-    C->>G: POST /api/v1/route {intent: "create a user"}
+    C->>G: POST /api/v1/route intent: create a user
     G->>A: Verify JWT
-    A->>G: Authenticated (userId, permissions)
+    A->>G: Authenticated userId, permissions
     G->>E: Embed intent text
     E->>E: Check LRU cache
-    E-->>G: Embedding vector [0.12, -0.34, ...]
+    E-->>G: Embedding vector 0.12, -0.34, etc
     G->>R: Route with embedding
-    R->>R: HNSW search (nearest neighbors)
-    R->>R: Apply confidence threshold (≥0.85)
-    R-->>G: Matched: user-service (0.92)
+    R->>R: HNSW search nearest neighbors
+    R->>R: Apply confidence threshold >=0.85
+    R-->>G: Matched user-service 0.92
     G->>P: Proxy to user-service
     P->>S: Forward request + security headers
     S-->>P: Response
@@ -81,13 +81,13 @@ sequenceDiagram
     participant G as Gateway
     participant R as Semantic Router
 
-    C->>G: POST /api/v1/route {intent: "process transaction"}
+    C->>G: POST /api/v1/route intent: process transaction
     G->>R: Route with embedding
-    R->>R: Top 2 scores: payment-service (0.87), order-service (0.84)
-    R->>R: Difference < 5% → Conflict
+    R->>R: Top 2 scores: payment-service 0.87, order-service 0.84
+    R->>R: Difference less than 5pct - Conflict
     R-->>G: 300 Multiple Choices
-    G-->>C: {candidates: [payment-service, order-service]}
-    C->>G: POST /api/v1/route/resolve {serviceId: "...", intent: "..."}
+    G-->>C: candidates payment-service, order-service
+    C->>G: POST /api/v1/route/resolve serviceId + intent
     G->>G: Proxy to selected service
 ```
 
